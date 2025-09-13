@@ -7,7 +7,7 @@ This is a simple terminal website, vibecoded with 20 lines of HTML and a massive
 - `ls` : List all files in the current/specified directory
 - `clear` : Clear the terminal screen
 - `cat [file]` : Navigate and view a file! (only text files for now)
-- `cd [dir]` : Change directory to another directory! (Only /projects/ for now) Use `cd ..` to return to the previous directory, or `cd root/` to return to root.
+- `cd [dir]` : Change directory to another directory! (Only /projects/ for now) Use `cd root/` to return to root.
 - `toggle-overlay` : Toggle the screen effects overlay (lines and fade).
 More commands to be added later!
 
