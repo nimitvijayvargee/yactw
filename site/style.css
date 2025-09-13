@@ -58,14 +58,28 @@ body {
 .file               { color: var(--brightWhite); }
 .directory          { color: var(--brightBlue); }
 .user               { color: var(--brightGreen); }
-.tilde              { color: var(--brightBlue); }
+.path              { color: var(--brightBlue); }
 .infolabel          { color: var(--brightRed); }
 .info               { color: var(--brightWhite); }
 .error              { color: var(--red); }
+.repoLink           { color: var(--brightCyan); text-decoration: underline; }
+.cmdline            { white-space: pre-wrap; }
+
+/* help Command */
 .helptext           { color: var(--brightCyan); }
 .helpCMDEntry       { color: var(--brightYellow); }
 .helpCMDDesc        { color: var(--brightWhite); }
-.cmdline            { white-space: pre-wrap; }
+
+/* ls command */
+.lsHeader {
+  color: var(--brightYellow);
+  text-decoration: underline;
+}
+
+.fileCreated, .fileType, .fileName {
+  padding-right: 5vw;
+}
+
 /* Overlay */
 #overlay {
   position: fixed;
@@ -86,14 +100,4 @@ body {
   0% { opacity: 1; }
   50% { opacity: 0.6; }
   100% { opacity: 1; }
-}
-
-
-/* lstable */
-.lsHeader {
-  color: var(--brightYellow);
-  text-decoration: underline;
-}
-.fileCreated, .fileType, .fileName {
-  padding-right: 5vw;
 }

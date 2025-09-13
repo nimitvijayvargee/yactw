@@ -11,7 +11,6 @@ function getURL() {
   document.getElementById("user").innerText = `user@${formattedURL}`;
   return formattedURL;
 }
-
 function createLabel(id, label, info) {
   const table = document.getElementById("labels");
   const row = document.createElement("tr");
@@ -53,7 +52,6 @@ function getUserIP() {
       createLabel("ip6", "Remote Client IPv6", data.ip);
     });
 }
-
 function getSystemInfo() {
   const userAgent = navigator.userAgent;
   let os = "Unknown", osVersion = "";
@@ -87,18 +85,16 @@ function getSystemInfo() {
   createLabel("cpu", "CPU ", cpuArch);
 
 }
-
 function welcomeUser() {
   document.getElementById("welcome").innerHTML = `
     welcome to nimit's homepage! <br/>
     run a command to get started <br/>
     use \`help\` for a list of commands <br/>`;
 }
-
 function startCMDLine() {
   document.getElementById("input").innerHTML = `
     <div class="inputline">
-      <span class="user" id="user">user@${location.host}</span>:<span class="tilde">~</span>$
+      <span class="user" id="user">user@${location.host}</span>:<span class="path" id="inputpath">~${currentStringPath}</span>$
       <span id="cmdline" contenteditable="true"></span>
       <span class="blinking-cursor">|</span>
     </div>`;
@@ -112,8 +108,7 @@ function parseCMD(cmd) {
     "about": () => { aboutMe(); }
   }
 }
-
-commands = ["help", "ls", "clear", "about", "cat"];
+commands = ["help", "ls", "clear", "about", "cat", "cd", "toggle-overlay"];
 function failedCMD(cmd, reason = "N/A") {
   let args = cmd.split(" ");
   cmd = args[0];
@@ -121,9 +116,10 @@ function failedCMD(cmd, reason = "N/A") {
   if (commands.includes(cmd)) {
     switch (cmd) {
       case "cat":
+      case "cd":
         if (args.length === 0) {
-          throwError(cmd, "no file specified");
-          console.log("no file specified");
+          throwError(cmd, "no file/directory specified");
+          console.log("no file/directory specified");
           return;
         }
         break;
@@ -144,7 +140,6 @@ function failedCMD(cmd, reason = "N/A") {
     console.log(`command not found: ${cmd}. if you are lost, try \`help\``);
   }
 }
-
 function throwError(cmd, error) {
   console.log(`an error occurred while executing ${cmd}: ${error}`);
   const errorText = `command \`${cmd}\` failed to execute: ${error}`;
@@ -155,8 +150,6 @@ function throwError(cmd, error) {
   output.appendChild(document.createElement("br"));
   return errorTextElement;
 }
-
-/* Commands */
 function appendHelpableCommand(cmd, desc) {
   const commandContainer = document.querySelector(".helpcmds:last-of-type");
   const cmdEntry = document.createElement("span");
@@ -174,7 +167,7 @@ function appendHelpableCommand(cmd, desc) {
   console.log(commandContainer);
   return cmdEntry, cmdDesc;
 }
-
+/* Commands */
 function help() {
   const helpText = `here is a list of currently usable commands and their descriptions`;
   const helpTextElement = document.createElement("span");
@@ -184,9 +177,10 @@ function help() {
   output.appendChild(document.createElement("br"));
   const commands = {
     "help": "display this help message",
-    "ls": "list available files",
+    "ls [optional: directory]": "list available files in directory",
     "clear": "clear the terminal screen",
-    "about": "learn more about me",
+    "cat [file]": "display the contents of a file",
+    "cd [directory]": "change the current directory",
     "toggle-overlay": "toggle the annoying overlay animation and filter",
   };
   const commandContainer = document.createElement("div");
@@ -197,34 +191,38 @@ function help() {
   });
   return true;
 }
-
 function clear() {
   output.innerHTML = "";
   return true;
 }
-function ls() {
+function ls(path = "") {
+  var node = currentDirectory;
+  if (path != "") {
+    node = resolvePath(normalizePath(path));
+  }
   const table = document.createElement("table");
   table.className = "lsTable";
+
   const header = document.createElement("tr");
   ["Created", "Type", "Name"].forEach(text => {
     const td = document.createElement("td");
     td.innerText = text;
+    td.className = "lsHeader";
     header.appendChild(td);
   });
   table.appendChild(header);
 
-  Object.entries(files).forEach(([filename, file]) => {
+  Object.entries(node.children).forEach(([filename, file]) => {
     const row = document.createElement("tr");
-    row.className = file.isDirectory ? "directory" : "file";
+    row.className = file.type === "dir" ? "directory" : "file";
 
     const created = document.createElement("td");
     created.className = "fileCreated";
-    created.innerText = file.created + ".....";
+    created.innerText = (file.created || "----");
 
     const type = document.createElement("td");
     type.className = "fileType";
-    type.innerText = file.isDirectory ? "<dir>" : file.type;
-    type.innerText += 10 - file.type.length <= 0 ? "" : ".".repeat(10 - file.type.length);
+    type.innerText = file.type === "dir" ? "<dir>" : file.type;
 
     const name = document.createElement("td");
     name.className = "fileName";
@@ -239,7 +237,6 @@ function ls() {
   output.appendChild(table);
   return true;
 }
-
 function toggleOverlay() {
   const overlay = document.getElementById("overlay");
   if (overlay.style.display !== "none") {
@@ -252,7 +249,6 @@ function toggleOverlay() {
     return true;
   }
 }
-
 function cat(path) {
   const node = resolvePath(path);
   if (!node) {
@@ -265,62 +261,48 @@ function cat(path) {
   }
   const span = document.createElement("span");
   span.className = "fileContent";
-  span.innerText = node.content;
+  span.innerHTML = node.content;
   output.appendChild(span);
   output.appendChild(document.createElement("br"));
   return true;
 }
-
-function ls(path = "") {
-  const node = path ? resolvePath(path) : fileTree;
-  if (!node) {
-    throwError("ls", `path \`${path}\` not found`);
-    return false;
+function cd(path) {
+  if (path === ".." || path === "../") {
+    if (currentDirectory.parent) {
+      currentDirectory = currentDirectory.parent;
+      currentStringPath = createPathString(currentDirectory);
+      console.log(currentDirectory, currentStringPath);
+      return true;
+    } else {
+      throwError("cd", "already at root directory");
+      return true;
+    }
   }
-  if (node.type === "file") {
-    throwError("ls", `\`${path}\` is not a directory`);
-    return false;
+  if (path === "root/") {
+    currentDirectory = fileTree;
+    currentStringPath = createPathString(currentDirectory);
+    console.log(currentDirectory, currentStringPath);
+    return true;
   }
 
-  const table = document.createElement("table");
-  table.className = "lsTable";
-  const header = document.createElement("tr");
-  ["Created", "Type", "Name"].forEach(text => {
-    const td = document.createElement("td");
-    td.innerText = text;
-    td.className = "lsHeader"
-    header.appendChild(td);
-  });
-  table.appendChild(header);
-
-  Object.entries(node.children).forEach(([name, child]) => {
-    const row = document.createElement("tr");
-    row.className = child.type === "dir" ? "directory" : "file";
-
-    const created = document.createElement("td");
-    created.className = "fileCreated";
-    created.innerText = (child.created || "----");
-
-    const type = document.createElement("td");
-    type.className = "fileType";
-    type.innerText = child.type === "dir" ? "<dir>" : child.type;
-
-    const fname = document.createElement("td");
-    fname.className = "fileName";
-    fname.innerText = name;
-
-    row.appendChild(created);
-    row.appendChild(type);
-    row.appendChild(fname);
-    table.appendChild(row);
-  });
-
-  output.appendChild(table);
+  const node = resolvePath(normalizePath(path));
+  if (!node && !path.includes("root")) {
+    throwError("cd", `directory \`${path}\` not found`);
+    return true;
+  } else if (!node && path.includes("root")) {
+    throwError("cd", `invalid path \`${path}\`. did you mean \`root/\`?`);
+    return true;
+  }
+  if (node.type !== "dir") {
+    throwError("cd", `\`${path}\` is not a directory`);
+    return true;
+  }
+  currentDirectory = node;
+  currentStringPath = createPathString(currentDirectory);
+  console.log(node, currentStringPath);
   return true;
 }
-
-
-
+/* Path and File Functions */
 function createFile(name, type, created, isDirectory = false, content = "") {
   if (!isDirectory) {
     return {
@@ -346,10 +328,9 @@ function normalizePath(path) {
     .replace(/^[/\\]+/, "")
     .replace(/\\/g, "/");
 }
-
 function resolvePath(path) {
   const parts = normalizePath(path).split("/").filter(Boolean);
-  let node = fileTree;
+  let node = currentDirectory;
 
   for (let i = 0; i < parts.length; i++) {
     if (node.type !== "dir") return null;
@@ -359,49 +340,70 @@ function resolvePath(path) {
 
   return node;
 }
-
-
-
-// Projects Directory
+function createPathString(node) {
+  if (node === fileTree) return "";
+  let path = "";
+  while (node && node !== fileTree) {
+    path = `/${node.name}` + path;
+    node = node.parent;
+  }
+  console.log("Current path:", path);
+  return path;
+}
+/* Filesystem */
 const deskrgbm_txt = `
-deskRGBM (Desktop RGB matrix) is a cool ornamental side project I made for hackclub highway! this project was made to be a fun little toy that can connect to a computer and use Vial (yes, the keyboard app) to control cool effects on a small 8x8 RGB Matrix. There is also a singular rotary encoder you can use to cycle the colours, effects, brightness and speed. This project was a small, easy to follow PCB project. It also helped to learn to solder SMD components (somewhat), and I really enjoyed making this one!
+deskRGBM (Desktop RGB matrix) is a cool ornamental side project I made for hackclub highway! this project was made to be a fun little toy that can connect to a computer and use Vial (yes, the keyboard app) to control cool effects on a small 8x8 RGB Matrix. There is also a singular rotary encoder you can use to cycle the colours, effects, brightness and speed. This project was a small, easy to follow PCB project. It also helped to learn to solder SMD components (somewhat), and I really enjoyed making this one! <br/> <a href="https://github.com/nimitvijayvargee/deskrgbm" class="repoLink">Visit the repo!</a>
+`
+const deskthing_txt = `
+deskthing is my take on a Spotify car thing clone built for your desk! I made it because I use my phone while studying and listening to music, but it gets a bit distracting and annoying. I am still working on getting the software for this optimized, but hope to have everything be controllable with a single rotary encoder. this project was made for hackclub highway and I thank them for funding this idea!<br/> <a href="https://github.com/nimitvijayvargee/deskthing" class="repoLink">Visit the repo!</a>
+`
+const mateingreen_txt = `
+MateInGreen is a random chessbot I made using python that uses the basic minimax algorithm to play chess! it works, albeit not that good. it can make moves, castle and so on. it's built with pygame to render the board so you can play with the bot as well, rather than typing your commands into the terminal! I later inplemented alpha-beta pruning in order to drastically speed up the bot, although the depth is still quite less. <br/> <a href="https://github.com/nimitvijayvargee/MateInGreen" class="repoLinkWS">Visit the repo!</a>
+`
+const keyboardv2_txt = `
+keyboardv2 is the second iteration of my custom 75% mechanical keyboard built on the RP2040, although it is the only one that actually went into manfacturing. the keyboard itself consists of a standard 75ANSI layout with staggered keys. it has rgb matrix, complete vial support and even 
+`
+const yactw_txt = `
+This site! Yet another corny terminal website is a random site I made for fun with vanilla JS, HTML and CSS. It is merely meant to give life to this domain which I haven't used in the year since I bought it last August.
 `
 const about_txt = `
-This website is nimit's corner of the internet! i am nimit, and i made this website to share some of my work with the world. sure, github works but formatting a resume into markdown is not fun at all. i am a 16 year old tech lover from india! i make some cool shit here and there, and sometimes my projects even work. i find myself working with hardware time and time again, and i love to spend my time doing circuit design, often times for fun. i have made tens of PCBs, and even manufactured a couple! some of my notable projects include keyboardv2, this website and i am currently working on a project that can be used as a USB tool to connect to computers and steal data (educationally). you can read more about my individual projects with \`cat \\projects\\[project]\`. i hope to remember to update this website frequently and would love to see you around!
+This website is nimit's corner of the internet! I am nimit, and I made this website to share some of my work with the world. sure, github works but formatting a resume into markdown is not fun at all. I am a 16 year old tech lover from india! I make some cool shit here and there, and sometimes my projects even work. I find myself working with hardware time and time again, and I love to spend my time doing circuit design, often times for fun. I have made tens of PCBs, and even manufactured a couple! some of my notable projects include keyboardv2, this website and I am currently working on a project that can be used as a USB tool to connect to computers and steal data (educationally). you can read more about my individual projects with \`cat \\projects\\[project]\`. I hope to remember to update this website frequently and would love to see you around!
 `
 const fileTree = {
   type: "dir",
   children: {
-    "yactw.sh": { type: "shell", created: "2025-09-07", content: "" },
-    "about.txt": { type: "text", created: "2024-09-07", content: about_txt },
+    "yactw.sh": { name: "yactw.sh", type: "shell", created: "2025-09-07", content: "" },
+    "about.txt": { name: "about.txt", type: "text", created: "2024-09-07", content: about_txt },
     "projects": {
+      name: "projects",
       type: "dir",
       created: "2024-09-07",
       children: {
-        "deskrgbm.txt": { type: "text", created: "2024-09-10", content: deskrgbm_txt },
-        "deskthing.txt": { type: "text", created: "2024-09-10", content: "" },
-        "mateingreen.txt": { type: "text", created: "2024-09-10", content: "" },
-        "keyboardv2.txt": { type: "text", created: "2024-09-10", content: "" },
-        "yactw.txt": { type: "text", created: "2024-09-10", content: "" }
+        "deskrgbm.txt": { name: "deskrgbm.txt", type: "text", created: "2024-09-10", content: deskrgbm_txt },
+        "deskthing.txt": { name: "deskthing.txt", type: "text", created: "2024-09-10", content: deskthing_txt },
+        "mateingreen.txt": { name: "mateingreen.txt", type: "text", created: "2024-09-10", content: mateingreen_txt },
+        "keyboardv2.txt": { name: "keyboardv2.txt", type: "text", created: "2024-09-10", content: keyboardv2_txt },
+        "yactw.txt": { name: "yactw.txt", type: "text", created: "2024-09-10", content: yactw_txt }
       }
     }
   }
 };
 
-
 /* Init + Keystrokes */
+
+const output = document.getElementById("output");
+let recorded = "";
+let commandHistory = [];
+let historyParseIndex = 0;
+let currentDirectory = fileTree; // Root
+let currentStringPath = createPathString(currentDirectory);
+
 getURL();
 getUserIP();
 getSystemInfo();
 setTimeout(welcomeUser, 1200);
 setTimeout(startCMDLine, 1400);
 
-
-const output = document.getElementById("output");
-let recorded = "";
-let commandHistory = [];
-let historyParseIndex = 0;
-let current_directory = ""; // Root
 
 
 document.addEventListener("keydown", e => {
@@ -435,7 +437,7 @@ document.addEventListener("keydown", e => {
     console.log(`[ENTER] Command run: ${recorded}`);
     output.innerHTML += `
     <div class="inputline">
-      <span class="user" id="user">user@${location.host}</span>:<span class="tilde">~</span>$
+      <span class="user" id="user">user@${location.host}</span>:<span class="path">~${currentStringPath}</span>$
       <span class="cmdline">${recorded}</span>
     </div>`;
     commandHistory.push(recorded);
@@ -452,7 +454,7 @@ document.addEventListener("keydown", e => {
             console.log("this is embarrassing, contact me if you see this because the website failed to initialize");
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -467,7 +469,28 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
+          failedCMD(recorded);
+          recorded = "";
+        }
+        break;
+      case (recorded.toLowerCase().startsWith("ls") ? recorded : null):
+        try {
+          const parts = recorded.split(" ");
+          if (!parts[1]) {
+            parts[1] = "";
+          }
+          const path = normalizePath(parts[1]);
+
+          if (ls(path)) {
+            recorded = "";
+            break;
+          } else {
+            failedCMD(recorded);
+            recorded = "";
+          }
+        } catch (e) {
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -482,7 +505,7 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -497,7 +520,7 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -512,7 +535,7 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -527,7 +550,7 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -542,7 +565,7 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -550,7 +573,7 @@ document.addEventListener("keydown", e => {
       case (recorded.startsWith("cat") ? recorded : null):
         try {
           const parts = recorded.split(" ");
-          const filename = normalizePath(parts[1]);  // <-- normalize here
+          const filename = normalizePath(parts[1]);
 
           if (cat(filename)) {
             recorded = "";
@@ -560,7 +583,7 @@ document.addEventListener("keydown", e => {
             recorded = "";
           }
         } catch (e) {
-          console.log(e);
+          console.error(e);
           failedCMD(recorded);
           recorded = "";
         }
@@ -569,11 +592,28 @@ document.addEventListener("keydown", e => {
         throwError("cat", "no file specified");
         recorded = "";
         break;
+      case (recorded.startsWith("cd") ? recorded : null):
+        try {
+          const parts = recorded.split(" ");
+          const path = normalizePath(parts[1]);
+          if (cd(path)) {
+            recorded = "";
+            break;
+          } else {
+            failedCMD(recorded);
+            recorded = "";
+          }
+        } catch (e) {
+          console.error(e);
+          failedCMD(recorded);
+          recorded = "";
+        }
+        break;
       case "": recorded = ""; break;
       default: failedCMD(recorded); recorded = ""; break;
     }
     scrollTo(0, document.body.scrollHeight);
-
   }
   document.getElementById("cmdline").innerText = recorded.replace(/ /g, "\u00a0");
+  document.getElementById("inputpath").innerText = `~${currentStringPath}`;
 });
