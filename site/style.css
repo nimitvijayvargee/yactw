@@ -1,6 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap');
+/* Mobile/Desktop Control */
+#desktop-terminal {
+  display: none;
+}
+#mobile {
+  display: none;
+}
+#desktop-normal {
+  display: block;
+}
 
+@media only screen and (max-width: 768px) {
+  #desktop-terminal {
+    display: none;
+  }
+  #mobile {
+    display: block;
+  }
+  #desktop-normal {
+    display: none;
+  }
+}
 /* Colours */
 :root {
   --black: #0C0C0C;
@@ -21,6 +41,25 @@
   --brightWhite: #F2F2F2;
   --brightYellow: #F9F1A5;
 }
+
+.black {color:var(--black);}
+.blue {color:var(--blue);}
+.cyan {color:var(--cyan);}
+.green {color:var(--green);}
+.purple {color:var(--purple);}
+.red {color:var(--red);}
+.white {color:var(--white);}
+.yellow {color:var(--yellow);}
+
+.brightBlack {color:var(--brightBlack);}
+.brightBlue {color:var(--brightBlue);}
+.brightCyan {color:var(--brightCyan);}
+.brightGreen {color:var(--brightGreen);}
+.brightPurple {color:var(--brightPurple);}
+.brightRed {color:var(--brightRed);}
+.brightWhite {color:var(--brightWhite);}
+.brightYellow {color:var(--brightYellow);}
+
 
 /* Global */
 body {
@@ -54,15 +93,16 @@ body {
 
 /* Text Colors */
 #yactwtitle         { color: var(--brightCyan); }
+.title              { color: var(--green ); text-decoration: underline wavy; }
 .comment            { color: var(--brightBlack); font-style: italic; }
 .file               { color: var(--brightWhite); }
 .directory          { color: var(--brightBlue); }
 .user               { color: var(--brightGreen); }
-.path              { color: var(--brightBlue); }
+.path               { color: var(--brightBlue); }
 .infolabel          { color: var(--brightRed); }
 .info               { color: var(--brightWhite); }
 .error              { color: var(--red); }
-.repoLink           { color: var(--brightCyan); text-decoration: underline; }
+.repoLink           { color: var(--brightCyan); text-decoration: underline wavy; }
 .cmdline            { white-space: pre-wrap; }
 
 /* help Command */
@@ -100,4 +140,69 @@ body {
   0% { opacity: 1; }
   50% { opacity: 0.6; }
   100% { opacity: 1; }
+}
+
+/* Buttons */
+.buttons {
+  margin: 0px;
+  padding: 0px;
+}
+.button {
+  display: inline-block;
+  color: var(--white);
+  padding: 10px 20px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid var(--brightBlack);
+}
+
+/* Tabs */
+.tab {
+  overflow: hidden;
+  border: 1px solid var(--brightBlack);
+  background-color: var(--brightBlack);
+  border-bottom: 2px solid var(--black);
+}
+button {
+  font-family: "Fira Code", monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: large;
+  margin: 0px;
+  padding: 0px;
+}
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  border-right: 2px solid var(--black);
+}
+
+.tab button:hover {
+  background-color: var(--white);
+}
+.active {
+  background-color: var(--black);
+  border-bottom: 4px solid var(--brightBlue);
+}
+
+.tabcontent, .tabcontentProject {
+  display: none;
+  padding: 10px;
+  border: 1px solid var(--brightBlack);
+  border-top: none;
+}
+.tabcontentTitle {
+  color: var(--brightCyan);
+  text-decoration: underline wavy;
+  margin: 0px;
+}
+#about {
+  padding: 10px;
+}
+#projectsContainer {
+  display: block;
 }

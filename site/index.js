@@ -1,3 +1,18 @@
+/* Init Functions */
+function showTerminal() {
+  document.getElementById("desktop-normal").style.display = "none";
+  document.getElementById("desktop-terminal").style.display = "block";
+  output.innerHTML = `
+    <span class="comment">// hi</span> <br />
+    <span class="user" id="user"></span>:<span class="path">~</span>$ yactw.sh<br /><br />
+  `;
+  spawnTitle();
+  getURL();
+  setTimeout(getUserIP, 400);
+  setTimeout(getSystemInfo, 800);
+  setTimeout(welcomeUser, 1200);
+  setTimeout(startCMDLine, 1400);
+}
 function getURL() {
   const url = location.host;
   console.log("URL:", url);
@@ -42,7 +57,7 @@ function getUserIP() {
     .then(res => res.json())
     .then(data => {
       console.log("IP Address (IPv4): ", data.ip);
-      createLabel("ip", "Remote Client IPv4", data.ip);
+      createLabel("ip4", "Remote Client IPv4", data.ip);
     });
 
   fetch("https://api64.ipify.org?format=json")
@@ -89,7 +104,8 @@ function welcomeUser() {
   document.getElementById("welcome").innerHTML = `
     welcome to nimit's homepage! <br/>
     run a command to get started <br/>
-    use \`help\` for a list of commands <br/>`;
+    use \`help\` for a list of commands <br/> run \`exit\` to return to the normal site <br/><br/>
+  `;
 }
 function startCMDLine() {
   document.getElementById("input").innerHTML = `
@@ -98,6 +114,14 @@ function startCMDLine() {
       <span id="cmdline" contenteditable="true"></span>
       <span class="blinking-cursor">|</span>
     </div>`;
+}
+function spawnTitle() {
+  output.innerHTML += `
+              <span id="yactwtitle">yactw - yet another corny terminal website</span><br />\
+              <table id="labels"></table>
+              <div id="welcome"></div>
+  `;
+  console.log(output.innerHTML)
 }
 /* Command Functions */
 function parseCMD(cmd) {
@@ -108,7 +132,7 @@ function parseCMD(cmd) {
     "about": () => { aboutMe(); }
   }
 }
-commands = ["help", "ls", "clear", "about", "cat", "cd", "toggle-overlay"];
+commands = ["help", "ls", "clear", "about", "cat", "cd", "toggle-overlay", "exit", "git"];
 function failedCMD(cmd, reason = "N/A") {
   let args = cmd.split(" ");
   cmd = args[0];
@@ -182,6 +206,7 @@ function help() {
     "cat [file]": "display the contents of a file",
     "cd [directory]": "change the current directory",
     "toggle-overlay": "toggle the annoying overlay animation and filter",
+    "exit": "close the connection and return to the normal site"
   };
   const commandContainer = document.createElement("div");
   commandContainer.setAttribute("class", "helpcmds");
@@ -302,6 +327,29 @@ function cd(path) {
   console.log(node, currentStringPath);
   return true;
 }
+function git() {
+  const gitText = `
+  git isn't a command here! but you might like the source code for this site! </br> 
+  <a class="repoLink" href="https://github.com/nimitvijayvargee/yactw">View the source code</a> <br /> 
+  Also check out my github while you're at it! <br /> 
+  <a class="repoLink" href="https://github.com/nimitvijayvargee">nimitvijayvargee on GitHub</a>
+  `;
+  const gitTextElement = document.createElement("span");
+  gitTextElement.setAttribute("class", "gittext");
+  gitTextElement.innerHTML = gitText;
+  output.appendChild(gitTextElement);
+  output.appendChild(document.createElement("br"));
+  return true;
+}
+function returnToNormalSite() {
+  output.innerHTML += `<span id="exit">closing connection</span><br/>`;
+  setTimeout(setExitDisplayStyle, 1500);
+
+}
+function setExitDisplayStyle() {
+  document.getElementById("desktop-normal").style.display = "block";
+  document.getElementById("desktop-terminal").style.display = "none";
+}
 /* Path and File Functions */
 function createFile(name, type, created, isDirectory = false, content = "") {
   if (!isDirectory) {
@@ -361,7 +409,7 @@ const mateingreen_txt = `
 MateInGreen is a random chessbot I made using python that uses the basic minimax algorithm to play chess! it works, albeit not that good. it can make moves, castle and so on. it's built with pygame to render the board so you can play with the bot as well, rather than typing your commands into the terminal! I later inplemented alpha-beta pruning in order to drastically speed up the bot, although the depth is still quite less. <br/> <a href="https://github.com/nimitvijayvargee/MateInGreen" class="repoLinkWS">Visit the repo!</a>
 `
 const keyboardv2_txt = `
-keyboardv2 is the second iteration of my custom 75% mechanical keyboard built on the RP2040, although it is the only one that actually went into manfacturing. the keyboard itself consists of a standard 75ANSI layout with staggered keys. it has rgb matrix, complete vial support and even 
+keyboardv2 is the second iteration of my custom 75% mechanical keyboard built on the RP2040, although it is the only one that actually went into manfacturing. the keyboard itself consists of a standard 75ANSI layout with staggered keys. it has an RGB matrix, a rotary encoder and complete vial support. <br/> <a href="https://github.com/nimitvijayvargee/keyboardv2" class="repoLink">Visit the repo!</a>
 `
 const yactw_txt = `
 This site! Yet another corny terminal website is a random site I made for fun with vanilla JS, HTML and CSS. It is merely meant to give life to this domain which I haven't used in the year since I bought it last August.
@@ -390,7 +438,7 @@ const fileTree = {
 };
 
 /* Init + Keystrokes */
-
+startKeylogger();
 const output = document.getElementById("output");
 let recorded = "";
 let commandHistory = [];
@@ -398,222 +446,272 @@ let historyParseIndex = 0;
 let currentDirectory = fileTree; // Root
 let currentStringPath = createPathString(currentDirectory);
 
-getURL();
-getUserIP();
-getSystemInfo();
-setTimeout(welcomeUser, 1200);
-setTimeout(startCMDLine, 1400);
-
-
-
-document.addEventListener("keydown", e => {
-  if (e.key.length === 1) {
-    recorded += e.key;
-    console.log(`[+${e.key}] ${recorded}`);
-  } else if (e.key === "Backspace") {
-    recorded = recorded.slice(0, -1);
-    console.log(`[-bks] ${recorded}`);
-  } else if (e.key === "ArrowUp") {
-    scrollTo(0, document.body.scrollHeight);
-    if (historyParseIndex > 0) {
-      historyParseIndex--;
-      let currently_typed = recorded;
-      recorded = commandHistory[historyParseIndex];
-      commandHistory.push(currently_typed);
-      console.log(`[UP] ${recorded}`);
-      commandHistory = [...new Set(commandHistory)];
-    }
-  } else if (e.key === "ArrowDown") {
-    scrollTo(0, document.body.scrollHeight);
-    if (historyParseIndex < commandHistory.length - 1) {
-      historyParseIndex++;
-      recorded = commandHistory[historyParseIndex];
-      console.log(`[DOWN] ${recorded}`);
-      commandHistory = [...new Set(commandHistory)];
-      commandHistory.pop("");
-      commandHistory.push("");
-    }
-  } else if (e.key === "Enter") {
-    console.log(`[ENTER] Command run: ${recorded}`);
-    output.innerHTML += `
+function startKeylogger() {
+  document.addEventListener("keydown", e => {
+    if (e.key.length === 1) {
+      recorded += e.key;
+      console.log(`[+${e.key}] ${recorded}`);
+    } else if (e.key === "Backspace") {
+      recorded = recorded.slice(0, -1);
+      console.log(`[-bks] ${recorded}`);
+    } else if (e.key === "ArrowUp") {
+      scrollTo(0, document.body.scrollHeight);
+      if (historyParseIndex > 0) {
+        historyParseIndex--;
+        let currently_typed = recorded;
+        recorded = commandHistory[historyParseIndex];
+        commandHistory.push(currently_typed);
+        console.log(`[UP] ${recorded}`);
+        commandHistory = [...new Set(commandHistory)];
+      }
+    } else if (e.key === "ArrowDown") {
+      scrollTo(0, document.body.scrollHeight);
+      if (historyParseIndex < commandHistory.length - 1) {
+        historyParseIndex++;
+        recorded = commandHistory[historyParseIndex];
+        console.log(`[DOWN] ${recorded}`);
+        commandHistory = [...new Set(commandHistory)];
+        commandHistory.pop("");
+        commandHistory.push("");
+      }
+    } else if (e.key === "Enter") {
+      console.log(`[ENTER] Command run: ${recorded}`);
+      output.innerHTML += `
     <div class="inputline">
       <span class="user" id="user">user@${location.host}</span>:<span class="path">~${currentStringPath}</span>$
       <span class="cmdline">${recorded}</span>
     </div>`;
-    commandHistory.push(recorded);
-    historyParseIndex = commandHistory.length;
-    switch (recorded.toLowerCase()) {
-      case "yactw.sh":
-        try {
-          if (yactwsh()) {
-            recorded = "";
-            break;
-          } else {
-            recorded = "";
-            failedCMD(recorded);
-            console.log("this is embarrassing, contact me if you see this because the website failed to initialize");
-          }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "help":
-        try {
-          if (help()) {
-            recorded = "";
-            break;
-          } else {
+      commandHistory.push(recorded);
+      historyParseIndex = commandHistory.length;
+      switch (recorded.toLowerCase()) {
+        case "yactw.sh":
+          try {
+            if (yactwsh()) {
+              recorded = "";
+              break;
+            } else {
+              recorded = "";
+              failedCMD(recorded);
+              console.log("this is embarrassing, contact me if you see this because the website failed to initialize");
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case (recorded.toLowerCase().startsWith("ls") ? recorded : null):
-        try {
-          const parts = recorded.split(" ");
-          if (!parts[1]) {
-            parts[1] = "";
+          break;
+        case "help":
+          try {
+            if (help()) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
+            failedCMD(recorded);
+            recorded = "";
           }
-          const path = normalizePath(parts[1]);
+          break;
+        case (recorded.toLowerCase().startsWith("ls") ? recorded : null):
+          try {
+            const parts = recorded.split(" ");
+            if (!parts[1]) {
+              parts[1] = "";
+            }
+            const path = normalizePath(parts[1]);
 
-          if (ls(path)) {
-            recorded = "";
-            break;
-          } else {
+            if (ls(path)) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "ls":
-        try {
-          if (ls()) {
-            recorded = "";
-            break;
-          } else {
+          break;
+        case "ls":
+          try {
+            if (ls()) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "clear":
-        try {
-          if (clear()) {
-            recorded = "";
-            break;
-          } else {
+          break;
+        case "clear":
+          try {
+            if (clear()) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "clear":
-        try {
-          if (clear()) {
-            recorded = "";
-            break;
-          } else {
+          break;
+        case "about":
+          try {
+            if (about()) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "about":
-        try {
-          if (about()) {
-            recorded = "";
-            break;
-          } else {
+          break;
+        case "toggle-overlay":
+          try {
+            if (toggleOverlay()) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "toggle-overlay":
-        try {
-          if (toggleOverlay()) {
-            recorded = "";
-            break;
-          } else {
-            failedCMD(recorded);
-            recorded = "";
-          }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case (recorded.startsWith("cat") ? recorded : null):
-        try {
-          const parts = recorded.split(" ");
-          const filename = normalizePath(parts[1]);
+          break;
+        case (recorded.startsWith("cat") ? recorded : null):
+          try {
+            const parts = recorded.split(" ");
+            const filename = normalizePath(parts[1]);
 
-          if (cat(filename)) {
-            recorded = "";
-            break;
-          } else {
+            if (cat(filename)) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
+          break;
+        case "cat":
+          throwError("cat", "no file specified");
           recorded = "";
-        }
-        break;
-      case "cat":
-        throwError("cat", "no file specified");
-        recorded = "";
-        break;
-      case (recorded.startsWith("cd") ? recorded : null):
-        try {
-          const parts = recorded.split(" ");
-          const path = normalizePath(parts[1]);
-          if (cd(path)) {
-            recorded = "";
-            break;
-          } else {
+          break;
+        case (recorded.startsWith("cd") ? recorded : null):
+          try {
+            const parts = recorded.split(" ");
+            const path = normalizePath(parts[1]);
+            if (cd(path)) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
             failedCMD(recorded);
             recorded = "";
           }
-        } catch (e) {
-          console.error(e);
-          failedCMD(recorded);
-          recorded = "";
-        }
-        break;
-      case "": recorded = ""; break;
-      default: failedCMD(recorded); recorded = ""; break;
+          break;
+        case "exit":
+          returnToNormalSite();
+          break
+        case "git":
+          try {
+            if (git()) {
+              recorded = "";
+              break;
+            } else {
+              failedCMD(recorded);
+              recorded = "";
+            }
+          } catch (e) {
+            console.error(e);
+            failedCMD(recorded);
+            recorded = "";
+          }
+          break;
+        case "": recorded = ""; break;
+        default: failedCMD(recorded); recorded = ""; break;
+      }
+      scrollTo(0, document.body.scrollHeight);
     }
-    scrollTo(0, document.body.scrollHeight);
+    document.getElementById("cmdline").innerText = recorded.replace(/ /g, "\u00a0");
+    document.getElementById("inputpath").innerText = `~${currentStringPath}`;
+  });
+}
+
+/* Tabs */
+function openTab(Name) {
+  var i, tabcontent, tablinks;
+
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
   }
-  document.getElementById("cmdline").innerText = recorded.replace(/ /g, "\u00a0");
-  document.getElementById("inputpath").innerText = `~${currentStringPath}`;
-});
+
+  var projectsContainer = document.getElementById('projectsContainer');
+  if (projectsContainer) projectsContainer.style.display = 'none';
+
+  var aboutContainer = document.getElementById('aboutContainer');
+  if (aboutContainer) aboutContainer.style.display = 'none';
+
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  document.getElementById(Name).style.display = "block";
+
+  for (i = 0; i < tablinks.length; i++) {
+    var onclickAttr = tablinks[i].getAttribute("onclick") || "";
+    if (onclickAttr.indexOf("openTab('" + Name + "')") !== -1) {
+      tablinks[i].className += " active";
+      break;
+    }
+  }
+
+  if (Name === 'projects' && projectsContainer) projectsContainer.style.display = 'block';
+  if (Name === 'about' && aboutContainer) aboutContainer.style.display = 'block';
+}
+
+
+function openProjectTab(Name) {
+  var i, tabcontent, tablinks;
+
+  tabcontent = document.getElementsByClassName("tabcontentProject");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  tablinks = document.getElementsByClassName("tablinksProject");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  document.getElementById(Name).style.display = "block";
+  var btn = document.getElementById(Name + "-btn");
+  if (btn) btn.className += " active";
+}
