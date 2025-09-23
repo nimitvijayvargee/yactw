@@ -17,13 +17,12 @@
         </div>
         <div id="input"></div>
     </div>
-
     <div id="desktop-normal">
         <h1 class="title">welcome to nimit's personal website!</h1>
         <div class="tab">
             <button onclick="showTerminal()" class="tablinks">open terminal version</button>
             <button onclick="toggleOverlay()" class="tablinks">toggle overlay</button>
-            <button onclick="window.location.href = `https://github.com/nimitvijayvargee/yactw`" class="tablinks">view
+            <button onclick="window.open('https://github.com/nimitvijayvargee/yactw')" class="tablinks">view
                 source</button>
         </div>
         <div class="tab">
@@ -152,6 +151,11 @@
                 frequently and would love to see you around!
             </p>
         </div>
+        <footer id="site-footer">
+            <div id="deploy-info">Loading build info…</div>
+        </footer>
+
+        <script src="/deployment.js" defer></script>
     </div>
     <div id="mobile">
         <h3 class="title">welcome to nimit's personal website!</h3>
