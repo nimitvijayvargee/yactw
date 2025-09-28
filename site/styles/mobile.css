@@ -1,0 +1,111 @@
+/* Mobile Control */
+#desktop-terminal { display: none; }
+#desktop-normal { display: none; }
+#mobile { display: block; }
+
+body {
+  margin: 5vmin 5vw;
+  background-color: var(--black);
+  color: var(--white);
+  padding: 10px;
+  font-family: "Fira Code", monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: large;
+}
+
+/* Buttons full width */
+.buttons {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.button {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  color: var(--white);
+  padding: 12px 20px;
+  background-color: var(--brightBlack);
+  border: 2px solid var(--brightBlack);
+  cursor: pointer;
+  margin-bottom: 5px;
+  font-family: "Fira Code", monospace;
+  font-weight: 400;
+  font-size: large;
+}
+.button:hover {
+  background-color: var(--white);
+  color: var(--black);
+}
+
+/* Tabs full width */
+.tab {
+  width: 100%;
+  border: none;
+  margin-top: 10px;
+}
+.tablinks, .tablinksProject {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 14px 16px;
+  color: var(--white);
+  background-color: var(--black);
+  border: 1px solid var(--brightBlack);
+  cursor: pointer;
+  font-family: "Fira Code", monospace;
+  font-weight: 400;
+  font-size: large;
+}
+.tablinks:hover, .tablinksProject:hover {
+  background-color: var(--white);
+  color: var(--black);
+}
+
+/* Active tab */
+.active {
+  background-color: var(--black);
+  border-bottom: 4px solid var(--brightCyan);
+}
+
+/* Tab content */
+.tabcontent, .tabcontentProject {
+  display: none;
+  padding: 10px;
+  border: 1px solid var(--brightBlack);
+  border-top: none;
+}
+.tabcontentTitle {
+  color: var(--brightCyan);
+  text-decoration: underline wavy;
+  margin: 0 0 10px 0;
+}
+#about { padding: 10px; }
+#projectsContainer { display: block; }
+
+/* Overlay */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url(../assets/overlay.png);
+  z-index: 1000;
+  animation: overlay 12s ease-in-out;
+  pointer-events: none;
+}
+@keyframes overlay {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Help + ls command (if used in future on mobile) */
+.helptext { color: var(--brightCyan); }
+.helpCMDEntry { color: var(--brightYellow); }
+.helpCMDDesc { color: var(--brightWhite); }
+.lsHeader { color: var(--brightYellow); text-decoration: underline; }
+.fileCreated, .fileType, .fileName { padding-right: 5vw; }

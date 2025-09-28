@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap');
+
+/* Desktop Control */
+#desktop-terminal { display: none; }
+#mobile { display: none; }
+#desktop-normal { display: block; }
+
+body {
+  margin: 10vmin 20vw 0px 20vw;
+  background-color: var(--black);
+  color: var(--white);
+  padding: 20px;
+  font-family: "Fira Code", monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: xx-large;
+}
+
+
+/* Cursor + Terminal Specific */
+.blinking-cursor {
+  display: inline-block;
+  width: 1ch;
+  color: var(--brightWhite);
+  animation: blink 1s step-start infinite;
+  transform: translateX(-18px);
+}
+@keyframes blink { 50% { opacity: 0; } }
+#desktop-terminal {
+  font-family: "Fira Code", monospace;
+  font-size: large;
+}
+
+
+/* help Command */
+.helptext { color: var(--brightCyan); }
+.helpCMDEntry { color: var(--brightYellow); }
+.helpCMDDesc { color: var(--brightWhite); }
+
+/* ls command */
+.lsHeader { color: var(--brightYellow); text-decoration: underline; }
+.fileCreated, .fileType, .fileName { padding-right: 5vw; }
+
+/* Overlay */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url(assets/overlay.png);
+  color: var(--brightWhite);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: overlay 12s ease-in-out;
+  pointer-events: none;
+}
+@keyframes overlay {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* Buttons */
+.buttons { margin: 0; padding: 0; }
+.button {
+  display: inline-block;
+  color: var(--white);
+  padding: 10px 20px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid var(--brightBlack);
+}
+
+/* Tabs */
+.tab {
+  overflow: hidden;
+  border: 1px solid var(--brightBlack);
+  background-color: var(--brightBlack);
+  border-bottom: 2px solid var(--black);
+}
+button {
+  font-family: "Fira Code", monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: large;
+  margin: 0;
+  padding: 0;
+}
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  border-right: 2px solid var(--black);
+  color: var(--black);
+}
+.tab button:hover {
+  background-color: var(--white);
+  color: var(--black);
+}
+.active {
+  background-color: var(--black);
+  border-bottom: 4px solid var(--brightBlue);
+}
+.tabcontent, .tabcontentProject {
+  display: none;
+  padding: 10px;
+  border: 1px solid var(--brightBlack);
+  border-top: none;
+}
+.tabcontentTitle {
+  color: var(--brightCyan);
+  text-decoration: underline wavy;
+  margin: 0;
+}
+
+#about { padding: 10px; }
+#projectsContainer { display: block; }

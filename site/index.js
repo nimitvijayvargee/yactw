@@ -715,3 +715,17 @@ function openProjectTab(Name) {
   var btn = document.getElementById(Name + "-btn");
   if (btn) btn.className += " active";
 }
+
+if (window.innerWidth <= 768) {
+  document.getElementById("desktop-normal").innerHTML = ``
+  document.getElementById("desktop-terminal").innerHTML = ``
+}
+if (window.innerWidth > 768) {
+  document.getElementById("mobile-selection").innerHTML = ``
+  document.getElementById("mobile").innerHTML = ``
+}
+
+window.addEventListener('resize', function () {
+  if (window.innerWidth <= 768 && document.getElementById("mobile").innerHTML === ``) this.window.location.reload();
+  if (window.innerWidth > 768 && document.getElementById("desktop-normal").innerHTML === ``) this.window.location.reload();
+});

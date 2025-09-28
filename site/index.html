@@ -5,7 +5,7 @@
     <title>yactw.sh</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles/style.css" />
     <script src="index.js" defer></script>
 </head>
 
@@ -23,7 +23,7 @@
         <div class="tab">
             <button onclick="showTerminal()" class="tablinks">open terminal version</button>
             <button onclick="toggleOverlay()" class="tablinks">toggle overlay</button>
-            <button onclick="window.location.href = `https://github.com/nimitvijayvargee/yactw`" class="tablinks">view
+            <button onclick="window.open(`https://github.com/nimitvijayvargee/yactw`)" class="tablinks">view
                 source</button>
         </div>
         <div class="tab">
@@ -156,11 +156,139 @@
     <div id="mobile">
         <h3 class="title">welcome to nimit's personal website!</h3>
         <div class="buttons">
-            <a onclick="toggleOverlay()" class="button">toggle overlay</a>
-            <a href="https://github.com/nimitvijayvargee/yactw" class="button">view source</a>
+            <button onclick="toggleOverlay()" class="button tablinks">toggle overlay</button>
+            <button onclick="window.open(`https://github.com/nimitvijayvargee/yactw`)" class="tablinks">view
+                source</button>
+        </div>
+        <div class="tab">
+            <button onclick="openTab('projects')" class="tablinks">projects</button>
+            <button onclick="openTab('about')" class="tablinks">about</button>
+        </div>
+        <div id="projects" class="tabcontent">
+            <div class="tab">
+                <button onclick="openProjectTab('deskrgbm')" id="deskrgbm-btn" class="tablinksProject">deskrgbm</button>
+                <button onclick="openProjectTab('deskthing')" id="deskthing-btn"
+                    class="tablinksProject">deskthing</button>
+                <button onclick="openProjectTab('mateingreen')" id="mateingreen-btn"
+                    class="tablinksProject">mateingreen</button>
+                <button onclick="openProjectTab('keyboardv2')" id="keyboardv2-btn"
+                    class="tablinksProject">keyboardv2</button>
+                <button onclick="openProjectTab('yactw')" id="yactw-btn" class="tablinksProject">yactw</button>
+            </div>
+            <div id="projectsContainer">
+                <div id="deskrgbm" class="tabcontentProject">
+                    <h3 class="tabcontentTitle">deskrgbm</h3>
+                    <p>
+                        deskRGBM (Desktop RGB matrix) is a cool ornamental side project I made for hackclub highway!
+                        this
+                        project was made to be a fun little toy that can connect to a computer and use Vial (yes,
+                        the
+                        keyboard
+                        app) to control cool effects on a small 8x8 RGB Matrix. There is also a singular rotary
+                        encoder
+                        you
+                        can
+                        use to cycle the colours, effects, brightness and speed. This project was a small, easy to
+                        follow
+                        PCB
+                        project. It also helped to learn to solder SMD components (somewhat), and I really enjoyed
+                        making
+                        this
+                        one! <br />
+                        <a href="https://github.com/nimitvijayvargee/deskrgbm" class="repoLink">Visit the repo!</a>
+                    </p>
+                </div>
+                <div id="deskthing" class="tabcontentProject">
+                    <h3 class="tabcontentTitle">deskthing</h3>
+                    <p>
+                        deskthing is my take on a Spotify car thing clone built for your desk! I made it because I
+                        use
+                        my
+                        phone
+                        while studying and listening to music, but it gets a bit distracting and annoying. I am
+                        still
+                        working on
+                        getting the software for this optimized, but hope to have everything be controllable with a
+                        single
+                        rotary encoder. this project was made for hackclub highway and I thank them for funding this
+                        idea!<br />
+                        <a href="https://github.com/nimitvijayvargee/deskthing" class="repoLink">Visit the repo!</a>
+                    </p>
+                </div>
+                <div id="mateingreen" class="tabcontentProject">
+                    <h3 class="tabcontentTitle">mateingreen</h3>
+                    <p>
+                        MateInGreen is a random chessbot I made using python that uses the basic minimax algorithm to
+                        play
+                        chess! it works, albeit not that good. it can make moves, castle and so on. it's built with
+                        pygame
+                        to
+                        render the board so you can play with the bot as well, rather than typing your commands into the
+                        terminal! I later inplemented alpha-beta pruning in order to drastically speed up the bot,
+                        although
+                        the
+                        depth is still quite less. <br />
+                        <a href="https://github.com/nimitvijayvargee/MateInGreen" class="repoLink">Visit the repo!</a>
+                    </p>
+                </div>
+                <div id="keyboardv2" class="tabcontentProject">
+                    <h3 class="tabcontentTitle">keyboardv2</h3>
+                    <p>
+                        keyboardv2 is the second iteration of my custom 75% mechanical keyboard built on the RP2040,
+                        although it is the only one that actually went into manfacturing. the keyboard itself consists
+                        of a standard 75ANSI layout with staggered keys. it has an RGB matrix, a rotary encoder and
+                        complete
+                        vial support.
+                        <br />
+                        <a href="https://github.com/nimitvijayvargee/keyboardv2" class="repoLink">Visit the repo!</a>
+                    </p>
+                </div>
+                <div id="yactw" class="tabcontentProject">
+                    <h3 class="tabcontentTitle">yactw</h3>
+                    <p>
+                        This site! Yet another corny terminal website is a random site I made for fun with vanilla JS,
+                        HTML and CSS.
+                        It is merely meant to give life to this domain which I haven't used in the year since I bought
+                        it last August.
+                        <br />
+                        <a href="https://github.com/nimitvijayvargee/yactw" class="repoLink">Visit the repo!</a>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+        <div id="about" class="tabcontent">
+            <h3 class="tabcontentTitle">About!</h3>
+            <p> This website is nimit's corner of the internet! I am nimit, and I made this website to share
+                some of
+                my
+                work with the world. sure, github works but formatting a resume into markdown is not fun at
+                all.
+                I
+                am a
+                16 year old tech lover from india! I make some cool shit here and there, and sometimes my
+                projects
+                even
+                work. I find myself working with hardware time and time again, and I love to spend my time
+                doing
+                circuit
+                design, often times for fun. I have made tens of PCBs, and even manufactured a couple! some
+                of
+                my
+                notable projects include keyboardv2, this website and I am currently working on a project
+                that
+                can
+                be
+                used as a USB tool to connect to computers and steal data (educationally). you can read more
+                about
+                my
+                individual projects on the projects tab! I hope to remember to update this website
+                frequently and would love to see you around!
+            </p>
         </div>
     </div>
     <div id="overlay" style="display: none;"></div>
+
 </body>
 
 </html>
